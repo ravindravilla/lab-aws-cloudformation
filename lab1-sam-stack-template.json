@@ -1,0 +1,209 @@
+{
+  "AWSTemplateFormatVersion": "2010-09-09",
+  "Resources": {
+    "S3BucketSource": {
+      "Type": "AWS::S3::Bucket",
+      "Properties": {
+        "BucketName": "lab1-lambda-exercise-source"
+      }
+    },
+    "S3BucketTarget": {
+      "Type": "AWS::S3::Bucket",
+      "Properties": {
+        "BucketName": "lab1-lambda-exercise-target",
+        "AccessControl": "PublicRead"
+      }
+    },
+    "BucketPolicy": {
+      "Type": "AWS::S3::BucketPolicy",
+      "Properties": {
+        "PolicyDocument": {
+          "Id": "MyPolicy",
+          "Version": "2012-10-17",
+          "Statement": [
+            {
+              "Sid": "AddPerm",
+              "Effect": "Allow",
+              "Principal": "*",
+              "Action": "s3:GetObject",
+              "Resource": {
+                "Fn::Join": [
+                  "",
+                  [
+                    "arn:aws:s3:::",
+                    {
+                      "Ref": "S3BucketTarget"
+                    },
+                    "/*"
+                  ]
+                ]
+              }
+            }
+          ]
+        },
+        "Bucket": {
+          "Ref": "S3BucketTarget"
+        }
+      }
+    },
+    "LambdaRoleAWSLAB": {
+      "Type": "AWS::IAM::Role",
+      "Properties": {
+        "AssumeRolePolicyDocument": {
+          "Version": "2012-10-17",
+          "Statement": [
+            {
+              "Effect": "Allow",
+              "Principal": {
+                "Service": [
+                  "s3.amazonaws.com",
+                  "lambda.amazonaws.com"
+                ]
+              },
+              "Action": [
+                "sts:AssumeRole"
+              ]
+            }
+          ]
+        },
+        "Path": "/",
+        "RoleName": "LambdaRoleAWSLAB"
+      }
+    },
+    "LambdaRoleAWSLABPolicies": {
+      "Type": "AWS::IAM::Policy",
+      "Properties": {
+        "PolicyName": "LambdaRoleAWSLABPolicies",
+        "PolicyDocument": {
+          "Version": "2012-10-17",
+          "Statement": [
+            {
+              "Effect": "Allow",
+              "Action": [
+                "logs:CreateLogGroup",
+                "logs:CreateLogStream",
+                "logs:PutLogsEvents"
+              ],
+              "Resource": "arn:aws:logs:*:*:*"
+            },
+            {
+              "Effect": "Allow",
+              "Action": [
+                "s3:*"
+              ],
+              "Resource": [
+                "arn:aws:s3:::*"
+              ]
+            }
+          ]
+        },
+        "Roles": [
+          {
+            "Ref": "LambdaRoleAWSLAB"
+          }
+        ]
+      }
+    },
+    "Lab1LambdaFunction": {
+      "Type": "AWS::Lambda::Function",
+      "Properties": {
+        "FunctionName": "Lab1LambdaFunction",
+        "Handler": "index.lambda_handler",
+        "Role": {"Fn::GetAtt" : ["LambdaRoleAWSLAB", "Arn"]
+        },
+        "Environment": {
+          "Variables": {
+            "src_bucket": {
+              "Ref": "S3BucketSource"
+            },
+            "target_bucket": {
+              "Ref": "S3BucketTarget"
+            }
+          }
+        },
+        "Code": {
+          "ZipFile" : { "Fn::Join" : ["\n", [
+            "from __future__ import print_function",
+            "import json",
+            "import boto3",
+            "import time",
+            "import urllib",
+            "import os",
+
+            "print('Loading function')",
+            "s3 = boto3.client('s3')",
+            "s3ResObj = boto3.resource('s3')",
+            "target_bucket = os.environ['target_bucket']",
+            "src_bucket = os.environ['src_bucket']",
+
+            "def lambda_handler(event, context):",
+            "  print(json.dumps(event))",
+
+            "  key = \"\"",
+            "  sbucket = s3ResObj.Bucket(src_bucket)",
+            "  dbucket = s3ResObj.Bucket(target_bucket)",
+
+            "  if event:",
+            "    try:",
+            "      for record in event['Records']:",
+            "        key = urllib.unquote_plus(record['s3']['object']['key'].encode('utf8'))",
+            "        copy_source = {'Bucket': src_bucket, 'Key': key}",
+            "        dbucket.copy(copy_source, key)",
+            "    except:",
+            "      try:",
+            "        key = event['queryStringParameters']['filename']",
+            "      except:",
+            "        key = \"\"",
+
+            "  if len(key) > 0:",
+            "    copy_source = {'Bucket': src_bucket, 'Key': key}",
+            "    dbucket.copy(copy_source, key)",
+            "  else:",
+            "    for k in sbucket.objects.all():",
+            "      copy_source = {'Bucket': src_bucket, 'Key': k.key}",
+            "      print(k.key)",
+            "      dbucket.copy(copy_source, k.key)",
+
+            "  return \"File successfully copied to target bucket\""
+          ]]}
+        },
+        "Runtime": "python3.6"
+      }
+    },
+    "ScheduledRule": {
+      "Type": "AWS::Events::Rule",
+      "Properties": {
+        "Description": "ScheduledRule",
+        "ScheduleExpression": "rate(2 minutes)",
+        "State": "ENABLED",
+        "Targets": [
+          {
+            "Arn": {
+              "Fn::GetAtt": [
+                "Lab1LambdaFunction",
+                "Arn"
+              ]
+            },
+            "Id": "TargetFunctionV1"
+          }
+        ]
+      }
+    },
+    "PermissionForEventsToInvokeLambda": {
+      "Type": "AWS::Lambda::Permission",
+      "Properties": {
+        "FunctionName": {
+          "Ref": "Lab1LambdaFunction"
+        },
+        "Action": "lambda:InvokeFunction",
+        "Principal": "events.amazonaws.com",
+        "SourceArn": {
+          "Fn::GetAtt": [
+            "ScheduledRule",
+            "Arn"
+          ]
+        }
+      }
+    }
+  }
+}
