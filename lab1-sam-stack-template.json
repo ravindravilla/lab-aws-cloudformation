@@ -1,16 +1,30 @@
 {
   "AWSTemplateFormatVersion": "2010-09-09",
+  "Parameters": {
+    "SourceBucket": {
+      "Type": "String",
+      "Description": "Source S3 Bucket"
+    },
+    "TargetBucket": {
+      "Type": "String",
+      "Description": "Target S3 Bucket"
+    }
+  },
   "Resources": {
     "S3BucketSource": {
       "Type": "AWS::S3::Bucket",
       "Properties": {
-        "BucketName": "lab1-lambda-exercise-source"
+        "BucketName": {
+          "Ref": "SourceBucket"
+        }
       }
     },
     "S3BucketTarget": {
       "Type": "AWS::S3::Bucket",
       "Properties": {
-        "BucketName": "lab1-lambda-exercise-target",
+        "BucketName": {
+          "Ref": "TargetBucket"
+        },
         "AccessControl": "PublicRead"
       }
     },
@@ -109,7 +123,11 @@
       "Properties": {
         "FunctionName": "Lab1LambdaFunction",
         "Handler": "index.lambda_handler",
-        "Role": {"Fn::GetAtt" : ["LambdaRoleAWSLAB", "Arn"]
+        "Role": {
+          "Fn::GetAtt": [
+            "LambdaRoleAWSLAB",
+            "Arn"
+          ]
         },
         "Environment": {
           "Variables": {
@@ -122,50 +140,49 @@
           }
         },
         "Code": {
-          "ZipFile" : { "Fn::Join" : ["\n", [
-            "from __future__ import print_function",
-            "import json",
-            "import boto3",
-            "import time",
-            "import urllib",
-            "import os",
-
-            "print('Loading function')",
-            "s3 = boto3.client('s3')",
-            "s3ResObj = boto3.resource('s3')",
-            "target_bucket = os.environ['target_bucket']",
-            "src_bucket = os.environ['src_bucket']",
-
-            "def lambda_handler(event, context):",
-            "  print(json.dumps(event))",
-
-            "  key = \"\"",
-            "  sbucket = s3ResObj.Bucket(src_bucket)",
-            "  dbucket = s3ResObj.Bucket(target_bucket)",
-
-            "  if event:",
-            "    try:",
-            "      for record in event['Records']:",
-            "        key = urllib.unquote_plus(record['s3']['object']['key'].encode('utf8'))",
-            "        copy_source = {'Bucket': src_bucket, 'Key': key}",
-            "        dbucket.copy(copy_source, key)",
-            "    except:",
-            "      try:",
-            "        key = event['queryStringParameters']['filename']",
-            "      except:",
-            "        key = \"\"",
-
-            "  if len(key) > 0:",
-            "    copy_source = {'Bucket': src_bucket, 'Key': key}",
-            "    dbucket.copy(copy_source, key)",
-            "  else:",
-            "    for k in sbucket.objects.all():",
-            "      copy_source = {'Bucket': src_bucket, 'Key': k.key}",
-            "      print(k.key)",
-            "      dbucket.copy(copy_source, k.key)",
-
-            "  return \"File successfully copied to target bucket\""
-          ]]}
+          "ZipFile": {
+            "Fn::Join": [
+              "\n",
+              [
+                "from __future__ import print_function",
+                "import json",
+                "import boto3",
+                "import time",
+                "import urllib",
+                "import os",
+                "print('Loading function')",
+                "s3 = boto3.client('s3')",
+                "s3ResObj = boto3.resource('s3')",
+                "target_bucket = os.environ['target_bucket']",
+                "src_bucket = os.environ['src_bucket']",
+                "def lambda_handler(event, context):",
+                "  print(json.dumps(event))",
+                "  key = \"\"",
+                "  sbucket = s3ResObj.Bucket(src_bucket)",
+                "  dbucket = s3ResObj.Bucket(target_bucket)",
+                "  if event:",
+                "    try:",
+                "      for record in event['Records']:",
+                "        key = urllib.unquote_plus(record['s3']['object']['key'].encode('utf8'))",
+                "        copy_source = {'Bucket': src_bucket, 'Key': key}",
+                "        dbucket.copy(copy_source, key)",
+                "    except:",
+                "      try:",
+                "        key = event['queryStringParameters']['filename']",
+                "      except:",
+                "        key = \"\"",
+                "  if len(key) > 0:",
+                "    copy_source = {'Bucket': src_bucket, 'Key': key}",
+                "    dbucket.copy(copy_source, key)",
+                "  else:",
+                "    for k in sbucket.objects.all():",
+                "      copy_source = {'Bucket': src_bucket, 'Key': k.key}",
+                "      print(k.key)",
+                "      dbucket.copy(copy_source, k.key)",
+                "  return \"File successfully copied to target bucket\""
+              ]
+            ]
+          }
         },
         "Runtime": "python3.6"
       }
