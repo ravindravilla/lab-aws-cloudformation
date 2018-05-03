@@ -21,7 +21,7 @@ Build CloudFormation template to provision,
 #### Steps to provision AWS resources
 * Login to AWS Console with your AWS credentials.
 * Select **_Services -> CloudFormation_**
-* Download the template (lab1-sam-stack-template.json) file from [github link](https://github.com/ravindravilla/lab-aws-cloudformation/blob/master/lab1-sam-stack-template.json) on to your local computer.
+* Download the template (lab1-sam-stack-template.json) file from [github](https://github.com/ravindravilla/lab-aws-cloudformation/blob/master/lab1-sam-stack-template.json) on to your local computer.
 * Click on **_Create Stack_**
 * Choose Upload a template to Amazon S3, Choose File button to upload the file you downloaded.
 
