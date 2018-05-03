@@ -6,10 +6,10 @@ Use AWS CloudFormation to provision AWS services that are needed to kick start t
 
 #### GOALS
 Build CloudFormation template to provision,
-1.	Two S3 Buckets in user selected Region.
-2.	IAM Role that has access to S3 Buckets, CloudWatch Logs, CloudWatch Event, assume role for Lambda function.
-3.	Lambda function that copies objects from Source S3 bucket to Target S3 bucket.
-4.	CloudWatch Event that triggers Lambda function.
+* Two S3 Buckets in user selected Region.
+* IAM Role that has access to S3 Buckets, CloudWatch Logs, CloudWatch Event, assume role for Lambda function.
+* Lambda function that copies objects from Source S3 bucket to Target S3 bucket.
+* CloudWatch Event that triggers Lambda function.
 
 #### Prerequisites
 * Access to Amazon AWS Console (your AWS account)
@@ -20,24 +20,24 @@ Build CloudFormation template to provision,
 
 #### Steps to provision AWS resources
 * Login to AWS Console with your AWS credentials.
-* Select <span style="color:blue"> Services -> CloudFormation </span>
+* Select **_Services -> CloudFormation_**
 * Download the template (lab1-sam-stack-template.json) file from [github link](https://github.com/ravindravilla/lab-aws-cloudformation/blob/master/lab1-sam-stack-template.json) on to your local computer.
-* Click on Create Stack
+* Click on **_Create Stack_**
 * Choose Upload a template to Amazon S3, Choose File button to upload the file you downloaded.
 
 ![alt text](cf_select_template.jpg "")
 
-* Click Next to navigate to Specify Details page. Enter lab-stack in the name field. Enter Source and Bucket names. Please note, the bucket names should be unique.
+* Click Next to navigate to **_Specify Details_** page. Enter **_lab-stack_** in the name field. Enter Source and Bucket names. Please note, the bucket names should be unique.
 
 ![alt text](cf_template_name.jpg "")
  
 	- Note: Please ensure to enter a unique bucket name, as duplicate bucket name across AWS is not allowed. It is suggested to add your name or some personal  keyword at the end of the bucket name. Remember, not to add any capital letter or special character in the bucket name.
-* Click Next to navigate to Options page, you may leave all the defaults and click Next
-* In Review page, select checkbox "I acknowledge that AWS CloudFormation might create IAM resources with custom names". click Create to start creating the stack.
+* Click Next to navigate to **_Options_** page, you may leave all the defaults and click Next
+* In **_Review_** page, select checkbox *"I acknowledge that AWS CloudFormation might create IAM resources with custom names"*. click **_Create_** to start creating the stack.
 
 ![alt text](cf_stack_ack.jpg "")
 
-* You should see lab-stack in the list. Select lab-stack checkbox, click refresh to see the progress. Wait for CloudFormation to create the resources, you should see CREATE_COMPLETE status.
+* You should see **_lab-stack_** in the list. Select **_lab-stack_** checkbox, click refresh to see the progress. Wait for CloudFormation to create the resources, you should see **_CREATE_COMPLETE_** status.
 
 	- Note: Once the CloudFormation stack creation is complete, you will be absolutely ready to test the task:1. You can directly move to step: 7 to test task:1. 
 
