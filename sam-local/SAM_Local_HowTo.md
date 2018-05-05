@@ -19,8 +19,11 @@
 
 - To Package Lambda function
 
-    `sam package --template-file template.yaml --s3-bucket BUCKET-NAME --output-template-file packaged-template.yaml`
+    `sam package --template-file template.yaml --s3-bucket [BUCKET-NAME] --output-template-file packaged-template.yaml`
     
 - To Deploy Lambda function
 
-    `sam deploy --template-file packaged-template.yaml --stack-name MY-NEW-STACK --capabilities CAPABILITY_IAM`
+    `sam deploy --template-file packaged-template.yaml --stack-name [STACK-NAME] --profile [PROFILE] --region [REGION] --capabilities CAPABILITY_IAM`
+    
+    Ex:
+    `sam deploy --template-file packaged-template.yaml --stack-name lambda-sam-stack --profile aws-qa --region us-west-1 --capabilities CAPABILITY_IAM`
