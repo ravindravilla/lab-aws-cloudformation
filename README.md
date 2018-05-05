@@ -25,17 +25,17 @@ Build CloudFormation template to provision,
 * Click on **_Create Stack_**
 * Choose Upload a template to Amazon S3, Choose File button to upload the file you downloaded.
 
-![alt text](cf_select_template.jpg "")
+![alt text](lab-stack/cf_select_template.jpg "")
 
 * Click Next to navigate to **_Specify Details_** page. Enter **_lab-stack_** in the name field. Enter Source and Bucket names. Please note, the bucket names should be unique.
 
-![alt text](cf_template_name.jpg "")
+![alt text](lab-stack/cf_template_name.jpg "")
  
 	- Note: Please ensure to enter a unique bucket name, as duplicate bucket name across AWS is not allowed. It is suggested to add your name or some personal  keyword at the end of the bucket name. Remember, not to add any capital letter or special character in the bucket name.
 * Click Next to navigate to **_Options_** page, you may leave all the defaults and click Next
 * In **_Review_** page, select checkbox *"I acknowledge that AWS CloudFormation might create IAM resources with custom names"*. click **_Create_** to start creating the stack.
 
-![alt text](cf_stack_ack.jpg "")
+![alt text](lab-stack/cf_stack_ack.jpg "")
 
 * You should see **_lab-stack_** in the list. Select **_lab-stack_** checkbox, click refresh to see the progress. Wait for CloudFormation to create the resources, you should see **_CREATE_COMPLETE_** status.
 

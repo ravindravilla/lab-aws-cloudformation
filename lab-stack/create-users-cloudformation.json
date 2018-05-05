@@ -1,0 +1,64 @@
+{
+  "AWSTemplateFormatVersion": "2010-09-09",
+  "Resources": {
+    "LabGroup": {
+      "Type": "AWS::IAM::Group",
+      "Properties": {
+        "Path": "/",
+        "GroupName": "LabGroup",
+        "Policies": [
+          {
+            "PolicyName": "SQSAllAccess",
+            "PolicyDocument": {
+              "Version": "2012-10-17",
+              "Statement": [
+                {
+                  "Effect": "Allow",
+                  "Action": [
+                    "sqs:*"
+                  ],
+                  "Resource": "*"
+                }
+              ]
+            }
+          }
+        ]
+      }
+    },
+    "myuser": {
+      "Type": "AWS::IAM::User",
+      "Properties": {
+        "Path": "/",
+        "LoginProfile": {
+          "Password": "@|KsB=Kd%LG@aj!=7A(5W_A(@fEV'F=Q$9!d+Yne=Gj}hI23bjtX'jf5K$&)aO4+"
+        }
+      }
+    },
+    "myaccesskey": {
+      "Type": "AWS::IAM::AccessKey",
+      "Properties": {
+        "UserName": {
+          "Ref": "myuser"
+        }
+      }
+    },
+    "addUserToGroup": {
+      "Type": "AWS::IAM::UserToGroupAddition",
+      "Properties": {
+        "GroupName": "LabGroup",
+        "Users": [
+          {
+            "Ref": "myuser"
+          }
+        ]
+      }
+    }
+  },
+  "Outputs": {
+    "IAMUser": {
+      "Value": {
+        "Ref": "myuser"
+      }
+    }
+  }
+}
